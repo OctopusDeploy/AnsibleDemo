@@ -1,21 +1,10 @@
 ---
-- name: Assume AWS Role
-  sts_assume_role:
-    role_arn: "arn:aws:iam::accountid:role/AnsibleWorker"
-    role_session_name: "AnsibleBuild"
-    region: us-east-1
-  register: assumed_role
-
 - name: Create Linux Server
   ec2:
-    aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
-    aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
-    security_token: "{{ assumed_role.sts_creds.session_token }}"
     key_name: ThePrivateKeyName
-    instance_type: t2.micro
-    image: ami-24959b47
+    instance_type: m3.medium
+    image: ami-ae7bfdb8
     wait: yes
-    assign_public_ip: true
     instance_profile_name: AnsibleWorker
     group: TheSecurityGroupName
     count: 1
@@ -34,7 +23,7 @@
   add_host:
     name: "{{ item.public_ip }}"
     groups:
-      - linux_server
+      - centos_server
   with_items: "{{linux_server_ec2.instances}}"
 
 - name: Wait for SSH to answer on all hosts
