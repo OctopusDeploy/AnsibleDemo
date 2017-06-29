@@ -1,0 +1,8 @@
+<powershell>
+Enable-WSManCredSSP -Role Server -Force
+Set-Item -Path "WSMan:\localhost\Service\Auth\CredSSP" -Value $true
+Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1'))
+$user=[adsi]"WinNT://localhost/Administrator,user"
+$user.SetPassword("TheWindowsPassword")
+$user.SetInfo()
+</powershell>

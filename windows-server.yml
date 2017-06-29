@@ -1,0 +1,17 @@
+---
+- name: Create Windows Server
+  hosts:
+    - 127.0.0.1
+  become: false
+  gather_facts: false
+
+  roles:
+    - win-server-instance
+
+- name: Configure Windows
+  hosts: windows_server
+  become: false
+  gather_facts: false
+
+  roles:
+    - configure-windows

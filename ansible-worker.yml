@@ -1,0 +1,18 @@
+---
+- name: Linux Server
+  hosts:
+    - 127.0.0.1
+  become: false
+  gather_facts: false
+
+  roles:
+    - centos-7-server-instance
+
+- name: Ansible setup
+  hosts: centos_server
+  remote_user: centos
+  become: true
+  become_user: root
+
+  roles:
+    - linux-ansible-worker
