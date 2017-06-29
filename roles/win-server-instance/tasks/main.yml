@@ -1,41 +1,41 @@
 ---
-  - name: Assume AWS Role
-    sts_assume_role:
-      role_arn: "arn:aws:iam::accountid:role/AnsibleWorker"
-      role_session_name: "AnsibleBuild"
-      region: us-east-1
-    register: assumed_role
+- name: Assume AWS Role
+  sts_assume_role:
+    role_arn: "arn:aws:iam::accountid:role/AnsibleWorker"
+    role_session_name: "AnsibleBuild"
+    region: us-east-1
+  register: assumed_role
 
-  - name: Create Windows Server
-    ec2:
-      aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
-      aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
-      security_token: "{{ assumed_role.sts_creds.session_token }}"
-      key_name: OctopusVirginia
-      instance_type: m3.large
-      image: ami-f1b5cfe7
-      wait: yes
-      wait_timeout: 600
-      group: SecurityGroupName
-      count: 1
-      region: us-east-1
-      user_data: "{{ lookup('template', 'templates/userdata.txt.j2') }}"
-      volumes:
-        - device_name: /dev/sda1
-          volume_size: 80
-          volume_type: gp2
-          delete_on_termination: true
-      instance_tags:
-        Name: Windows Server
-    register: windows_server_ec2
+- name: Create Windows Server
+  ec2:
+    aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+    aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+    security_token: "{{ assumed_role.sts_creds.session_token }}"
+    key_name: OctopusVirginia
+    instance_type: m3.large
+    image: ami-f1b5cfe7
+    wait: yes
+    wait_timeout: 600
+    group: SecurityGroupName
+    count: 1
+    region: us-east-1
+    user_data: "{{ lookup('template', 'templates/userdata.txt.j2') }}"
+    volumes:
+      - device_name: /dev/sda1
+        volume_size: 80
+        volume_type: gp2
+        delete_on_termination: true
+    instance_tags:
+      Name: Windows Server
+  register: windows_server_ec2
 
-  - name: Add Host to Inventory
-    add_host:
-      name: "{{ windows_server_ec2.instances[0].public_ip }}"
-      groups: windows_server
+- name: Add Host to Inventory
+  add_host:
+    name: "{{ windows_server_ec2.instances[0].public_ip }}"
+    groups: windows_server
 
-  - name: Wait for WinRM to answer on all hosts
-    wait_for:
-      port: 5986
-      host: "{{ windows_server_ec2.instances[0].public_ip }}"
-      timeout: 6000
+- name: Wait for WinRM to answer on all hosts
+  wait_for:
+    port: 5986
+    host: "{{ windows_server_ec2.instances[0].public_ip }}"
+    timeout: 6000
